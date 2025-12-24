@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
+import 'features/live/presentation/live_class_page.dart';
 import 'firebase_options.dart';
 
 void main()async{
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) =>const LoginPage(),
         '/register': (context) =>const RegisterPage(),
         '/home': (context) => const HomePage(),
+        '/live': (_) => const LiveClassPage(),
       },
     );
   }

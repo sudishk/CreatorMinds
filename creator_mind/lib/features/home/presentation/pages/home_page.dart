@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+  static const ivsPlaybackUrl =
+      'https://0befe6448bce.ap-south-1.playback.live-video.net/api/video/v1/ap-south-1.934216310591.channel.opcWa3cSK4yQ.m3u8';
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +71,7 @@ class HomePage extends StatelessWidget {
                 Navigator.pushNamed(
                   context,
                   '/live',
-                  arguments:
-                  "https://YOUR_IVS_PLAYBACK_URL.m3u8", // IVS URL
+                  arguments: ivsPlaybackUrl,
                 );
               },
             ),
