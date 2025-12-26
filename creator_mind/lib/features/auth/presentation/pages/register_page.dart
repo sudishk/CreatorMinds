@@ -1,4 +1,5 @@
 
+import 'package:creator_mind/features/auth/domain/usecases/register_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
@@ -180,15 +181,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             : () {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthBloc>().add(
-                              RegisterRequested({
-                                "first_name": firstNameCtrl.text,
-                                "last_name": lastNameCtrl.text,
-                                "class": selectedClass,
-                                "gender": genderCtrl.text,
-                                "email": emailCtrl.text,
-                                "password": passCtrl.text,
-                                "number": phoneCtrl.text,
-                              }),
+                              RegisterRequested(
+                                RegisterParams(firstName: firstNameCtrl.text, lastName: lastNameCtrl.text, className: "$selectedClass", gender: genderCtrl.text, email:  emailCtrl.text, password: passCtrl.text, phone: phoneCtrl.text)),
                             );
                           }
                         },

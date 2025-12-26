@@ -1,3 +1,5 @@
+import '../../domain/usecases/register_usecase.dart';
+
 abstract class AuthEvent {
 
 }
@@ -8,6 +10,6 @@ class LoginRequested extends AuthEvent {
 }
 
 class RegisterRequested extends AuthEvent {
-  final Map<String, dynamic> data;
+  final RegisterParams data;
   RegisterRequested(this.data);
 }

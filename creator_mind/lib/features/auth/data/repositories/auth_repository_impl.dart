@@ -1,4 +1,6 @@
 
+import 'package:creator_mind/features/auth/domain/usecases/register_usecase.dart';
+
 import '../../../../core/error/exception.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/utils/either.dart';
@@ -26,7 +28,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> register(Map<String, dynamic> data) async{
+  Future<Either<Failure, User>> register(RegisterParams data) async{
     try{
       final user = await authRemoteDataSource.register(data);
       return Right(user);

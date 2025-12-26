@@ -1,5 +1,11 @@
+import 'package:creator_mind/core/global/date.dart';
+import 'package:creator_mind/features/attendence/domain/entities/attendance.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../attendence/presentation/bloc/attendance_bloc.dart';
+import '../../../attendence/presentation/bloc/attendance_event.dart';
+import '../../../attendence/presentation/bloc/attendance_state.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,7 +15,19 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    final date = getFormattedDate();
+    var userData = {};
+    getUser().then((value) {
+      if(value!= null) {
+        userData.addAll(value);
+      }
+    },);
 
+    context.read<AttendanceBloc>().add(
+      WatchMyAttendanceEvent(
+        "${user?.uid}", date,
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home"),
@@ -28,7 +46,6 @@ class HomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 🔹 Welcome Card
             Card(
               elevation: 2,
               child: Padding(
@@ -43,15 +60,63 @@ class HomePage extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          user?.displayName ?? "Student",
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+
                         Text(
                           user?.email ?? "",
                           style: const TextStyle(color: Colors.grey),
                         ),
+
+                        const SizedBox(height: 12),
+
+                        BlocBuilder<AttendanceBloc, AttendanceState>(
+                          builder: (context, state) {
+                            if (state is AttendanceLoading) {
+                              return CircularProgressIndicator();
+                            }
+
+                            if (state is AttendanceLoaded && state.list.isNotEmpty) {
+                              final a = state.list[0];
+                              return Text(a.status);
+                            } else if (state is AttendanceLoaded && state.list.isEmpty){
+                              return   SizedBox(
+                                width: 200,
+                                height: 48,
+                                child: ElevatedButton.icon(
+                                  icon: const Icon(Icons.how_to_reg),
+                                  label: const Text("Request Attendance"),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                  onPressed: () {
+                                    _showAttendanceDialog(context, userData);
+                                  },
+                                ),
+                              );
+                            }
+
+                            if (state is AttendanceError) {
+                              return Text(state.message);
+                            }
+
+                            return   SizedBox(
+                              width: 200,
+                              height: 48,
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.how_to_reg),
+                                label: const Text("Request Attendance"),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  backgroundColor: Colors.green,
+                                ),
+                                onPressed: () {
+                                  _showAttendanceDialog(context, userData);
+                                },
+                              ),
+                            );
+                          },
+                        )
+
                       ],
                     )
                   ],
@@ -78,37 +143,25 @@ class HomePage extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            ElevatedButton.icon(
-              icon: const Icon(Icons.how_to_reg),
-              label: const Text("Request Attendance"),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                backgroundColor: Colors.green,
-              ),
-              onPressed: () {
-                _showAttendanceDialog(context);
-              },
-            ),
 
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.person_outline),
-              label: const Text("View Profile"),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/profile');
-              },
-            ),
+            // const SizedBox(height: 12),
+            // OutlinedButton.icon(
+            //   icon: const Icon(Icons.person_outline),
+            //   label: const Text("View Profile"),
+            //   style: OutlinedButton.styleFrom(
+            //     padding: const EdgeInsets.symmetric(vertical: 14),
+            //   ),
+            //   onPressed: () {
+            //     Navigator.pushNamed(context, '/profile');
+            //   },
+            // ),
           ],
         ),
       ),
     );
   }
 
-  // 🔹 Attendance Request Dialog
-  void _showAttendanceDialog(BuildContext context) {
+  void _showAttendanceDialog(BuildContext context, Map<dynamic, dynamic> userData) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -122,6 +175,13 @@ class HomePage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
+              var date = getFormattedDate();
+              var uid = FirebaseAuth.instance.currentUser?.uid;
+              final attendance = Attendance(id: '', studentName: "${userData['first_name']} ${userData['last_name']}", date: date, status: 'Pending', studentId: '$uid');
+              context.read<AttendanceBloc>().add(
+                RequestAttendanceEvent(attendance),
+              );
+
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Attendance requested")),

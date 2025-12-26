@@ -14,11 +14,6 @@ class LoginUseCase extends UseCase<User, LoginParams> {
   Future<Either<Failure, User>> call(LoginParams params) {
     return repository.login(params.email, params.password);
   }
-
-  @override
-  Future<Either<Failure, User>> callRegister(Map<String, dynamic> params) {
-    return repository.register(params);
-  }
 }
 
 class LoginParams{

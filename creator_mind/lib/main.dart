@@ -4,7 +4,12 @@ import 'package:creator_mind/features/auth/presentation/pages/register_page.dart
 import 'package:creator_mind/splash_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'features/attendence/domain/repositories/attendence_repository.dart';
+import 'features/attendence/domain/usecase/attendence_usecase.dart';
+import 'features/attendence/presentation/bloc/attendance_bloc.dart';
+import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/live/presentation/live_class_page.dart';
@@ -16,7 +21,11 @@ void main()async{
     options: DefaultFirebaseOptions.currentPlatform,
   );
   init();
-  runApp(MyApp());
+
+  runApp(MultiBlocProvider(providers: [
+    BlocProvider(create: (_) => sl<AuthBloc>()),
+    BlocProvider(create: (_) => sl<AttendanceBloc>()),
+  ], child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +33,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
